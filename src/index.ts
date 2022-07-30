@@ -1,0 +1,1 @@
+export { notalk } from "./adapter";
