@@ -34,7 +34,7 @@
     "typescript": "^4.7.4"
   },
   "dependencies": {
-    "@notalk/common": "^0.1.5",
+    "@notalk/common": "^0.1.6",
     "@notalk/core": "^0.1.3"
   }
 }

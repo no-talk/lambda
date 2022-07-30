@@ -1,4 +1,4 @@
-import { SnakecaseMetadata, StatusCodeMetadata } from "@notalk/common";
+import { SnakeCaseMetadata, StatusCodeMetadata } from "@notalk/common";
 import { ResponseReducer } from "@notalk/core";
 import { ResponseData } from "../../types";
 
@@ -10,7 +10,7 @@ export const responseReducer: ResponseReducer<ResponseData> = (value, metadata) 
     };
   }
 
-  if (metadata instanceof SnakecaseMetadata) {
+  if (metadata instanceof SnakeCaseMetadata) {
     const toSnakeCase = (value: any): any => {
       if (value === null || value === undefined) {
         return undefined;
