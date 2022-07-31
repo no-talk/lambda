@@ -1,11 +1,12 @@
-import { calculateRequest, calculateResponse, Exception } from "@notalk/core";
+import { calculateRequest, calculateResponse, Exception, RequestReducer, ResponseReducer } from "@notalk/core";
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
-import { requestReducer } from "../reducers/request_reducer";
-import { responseReducer } from "../reducers/response_reducer";
 import { Lambda, ResponseData } from "../types";
+
+type Class<T> = { new (): T };
 
 export const notalk =
   <Request, Response extends ResponseData>(request: Class<Request>, response: Class<Response>) =>
+  (requestReducer: RequestReducer<APIGatewayProxyEvent>, responseReducer: ResponseReducer<Response>) =>
   (fn: Lambda<Request, Response>) =>
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     try {
@@ -41,5 +42,3 @@ export const notalk =
       };
     }
   };
-
-type Class<T> = { new (): T };
