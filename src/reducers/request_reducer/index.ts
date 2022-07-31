@@ -13,6 +13,7 @@ import {
   IsNestedMetadata,
   IsNumberArrayMetadata,
   IsNumberMetadata,
+  IsOneOfArrayMetadata,
   IsOneOfMetadata,
   IsStringArrayMetadata,
   IsStringMetadata,
@@ -178,6 +179,12 @@ export const requestReducer: RequestReducer<APIGatewayProxyEvent> = (value, even
 
   if (metadata instanceof IsOneOfMetadata) {
     validate(value[metadata.dist])(isOneOf(metadata.args.array));
+
+    return value;
+  }
+
+  if (metadata instanceof IsOneOfArrayMetadata) {
+    validate(value[metadata.dist])(each(isOneOf(metadata.args.array)));
 
     return value;
   }
