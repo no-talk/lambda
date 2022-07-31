@@ -6,7 +6,7 @@ type Class<T> = { new (): T };
 
 export const notalk =
   <Request, Response extends ResponseData>(request: Class<Request>, response: Class<Response>) =>
-  (requestReducer: RequestReducer<APIGatewayProxyEvent>, responseReducer: ResponseReducer<Response>) =>
+  (requestReducer: RequestReducer<APIGatewayProxyEvent>, responseReducer: ResponseReducer<ResponseData>) =>
   (fn: Lambda<Request, Response>) =>
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     try {
