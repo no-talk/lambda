@@ -2,6 +2,7 @@ import {
   BadRequestException,
   BearerAuthMetadata,
   BodyMetadata,
+  EndpointMetadata,
   HeaderMetadata,
   IsBooleanArrayMetadata,
   IsBooleanMetadata,
@@ -14,8 +15,9 @@ import {
   IsOneOfMetadata,
   IsStringArrayMetadata,
   IsStringMetadata,
-  MethodMetadata,
   MethodNotAllowed,
+  NotFoundException,
+  PathMetadata,
   QueryMetadata,
   RequiredMetadata,
 } from "@notalk/common";
@@ -26,9 +28,17 @@ import { validate, each, isBoolean, isString, isNumber, isOneOf, isMatched } fro
 const ALIAS_BODY = "__body__";
 
 export const requestReducer: RequestReducer<APIGatewayProxyEvent> = (value, event, metadata) => {
-  if (metadata instanceof MethodMetadata) {
-    if (event.httpMethod.toLowerCase() !== metadata.args.value.toLowerCase()) {
+  if (metadata instanceof EndpointMetadata) {
+    const { method, path } = metadata.args;
+
+    if (event.httpMethod.toLowerCase() !== method.toLowerCase()) {
       throw new MethodNotAllowed();
+    }
+
+    const pathRegex = new RegExp(path?.startsWith("/") ? "" : "/" + path?.replace(/\/:.*\//, "/.*/"));
+
+    if (!pathRegex.test(event.path)) {
+      throw new NotFoundException();
     }
 
     return value;
@@ -46,6 +56,13 @@ export const requestReducer: RequestReducer<APIGatewayProxyEvent> = (value, even
     return {
       ...value,
       [metadata.dist]: event.queryStringParameters?.[metadata.args.key],
+    };
+  }
+
+  if (metadata instanceof PathMetadata) {
+    return {
+      ...value,
+      [metadata.dist]: event.pathParameters?.[metadata.args.key],
     };
   }
 
