@@ -2,6 +2,7 @@ import {
   BadRequestException,
   BearerAuthMetadata,
   BodyMetadata,
+  DomainMetadata,
   EndpointMetadata,
   HeaderMetadata,
   IsBooleanArrayMetadata,
@@ -28,6 +29,14 @@ import { validate, each, isBoolean, isString, isNumber, isOneOf, isMatched } fro
 const ALIAS_BODY = "__body__";
 
 export const requestReducer: RequestReducer<APIGatewayProxyEvent> = (value, event, metadata) => {
+  if (metadata instanceof DomainMetadata) {
+    if (event.requestContext.domainName !== metadata.args.value) {
+      throw new BadRequestException();
+    }
+
+    return value;
+  }
+
   if (metadata instanceof EndpointMetadata) {
     const { method, path } = metadata.args;
 
