@@ -88,33 +88,33 @@ export const requestReducer: RequestReducer<RequestData> = (value, event, metada
   if (metadata instanceof BodyMetadata) {
     if (isAuthorizer(event)) {
       return value;
-    } else {
-      if (!value[ALIAS_BODY]) {
-        if (!event.body) {
-          value[ALIAS_BODY] = {};
-        } else {
-          value[ALIAS_BODY] = JSON.parse(event.body);
-        }
+    }
+
+    if (!value[ALIAS_BODY]) {
+      if (!event.body) {
+        value[ALIAS_BODY] = {};
+      } else {
+        value[ALIAS_BODY] = JSON.parse(event.body);
       }
+    }
 
-      if (metadata.args.key) {
-        const result = (value[ALIAS_BODY] as Record<string, unknown>)[metadata.args.key];
-
-        return {
-          ...value,
-          [metadata.dist]: result,
-        };
-      }
-
-      const result = value[ALIAS_BODY];
-
-      delete value[ALIAS_BODY];
+    if (metadata.args.key) {
+      const result = (value[ALIAS_BODY] as Record<string, unknown>)[metadata.args.key];
 
       return {
         ...value,
         [metadata.dist]: result,
       };
     }
+
+    const result = value[ALIAS_BODY];
+
+    delete value[ALIAS_BODY];
+
+    return {
+      ...value,
+      [metadata.dist]: result,
+    };
   }
 
   if (metadata instanceof HeaderMetadata) {
@@ -127,7 +127,7 @@ export const requestReducer: RequestReducer<RequestData> = (value, event, metada
   if (metadata instanceof BearerAuthMetadata) {
     return {
       ...value,
-      [metadata.dist]: event.headers?.[isAuthorizer(event) ? "authorization" : "Authorization"]?.replace("Bearer ", ""),
+      [metadata.dist]: event.headers?.["Authorization"]?.replace("Bearer ", ""),
     };
   }
 
