@@ -1,27 +1,28 @@
 import { calculateRequest, calculateResponse, Exception, RequestReducer, ResponseReducer } from "@notalk/core";
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
-import { Lambda, ResponseData } from "../types";
+import { Callback, Context } from "aws-lambda";
+import { isAuthorizer } from "../common/functions";
+import { RequestData, Lambda } from "../types";
 
 type Class<T> = { new (): T };
 
 export const notalk =
-  <Request, Response extends ResponseData>(request: Class<Request>, response: Class<Response>) =>
-  (requestReducer: RequestReducer<APIGatewayProxyEvent>, responseReducer: ResponseReducer<ResponseData>) =>
+  <Request, Response>(request: Class<Request>, response: Class<Response>) =>
+  (requestReducer: RequestReducer<RequestData>, responseReducer: ResponseReducer<RequestData>) =>
   (fn: Lambda<Request, Response>) =>
-  async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+  async (event: RequestData, context: Context, callback: Callback): Promise<any> => {
     try {
-      const input = calculateRequest<APIGatewayProxyEvent, Request>({}, event, requestReducer, request);
+      const input = calculateRequest<RequestData, Request>({}, event, requestReducer, request);
 
       const output = await fn(input);
 
-      const { statusCode, headers, body } = calculateResponse(output, responseReducer, response);
+      const result = calculateResponse(output as any, event, responseReducer, response);
 
-      return {
-        statusCode: statusCode || 200,
-        headers,
-        body: body ? JSON.stringify(body) : "",
-      };
+      return result;
     } catch (error: any) {
+      if (isAuthorizer(event)) {
+        return callback("Unauthorized");
+      }
+
       if (error instanceof Exception) {
         const { statusCode, message, headers } = error;
 

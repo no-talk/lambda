@@ -2,7 +2,6 @@ import {
   BadRequestException,
   BearerAuthMetadata,
   BodyMetadata,
-  DomainMetadata,
   EndpointMetadata,
   HeaderMetadata,
   IsBooleanArrayMetadata,
@@ -21,16 +20,19 @@ import {
   NotFoundException,
   PathMetadata,
   QueryMetadata,
+  RequestMetadata,
   RequiredMetadata,
 } from "@notalk/common";
 import { calculateRequest, RequestReducer } from "@notalk/core";
-import { APIGatewayProxyEvent } from "aws-lambda";
+import { RequestData } from "../../types";
 import { validate, each, isBoolean, isString, isNumber, isOneOf, isMatched } from "./validate";
 
 const ALIAS_BODY = "__body__";
 
-export const requestReducer: RequestReducer<APIGatewayProxyEvent> = (value, event, metadata) => {
-  if (metadata instanceof DomainMetadata) {
+export const requestReducer: RequestReducer<RequestData> = (value, event, metadata) => {
+  const isAuthorizer = "methodArn" in event;
+
+  if (metadata instanceof RequestMetadata) {
     if (event.requestContext.domainName !== metadata.args.value) {
       throw new BadRequestException();
     }
@@ -77,31 +79,35 @@ export const requestReducer: RequestReducer<APIGatewayProxyEvent> = (value, even
   }
 
   if (metadata instanceof BodyMetadata) {
-    if (!value[ALIAS_BODY]) {
-      if (!event.body) {
-        value[ALIAS_BODY] = {};
-      } else {
-        value[ALIAS_BODY] = JSON.parse(event.body);
+    if (isAuthorizer) {
+      return value;
+    } else {
+      if (!value[ALIAS_BODY]) {
+        if (!event.body) {
+          value[ALIAS_BODY] = {};
+        } else {
+          value[ALIAS_BODY] = JSON.parse(event.body);
+        }
       }
-    }
 
-    if (metadata.args.key) {
-      const result = (value[ALIAS_BODY] as Record<string, unknown>)[metadata.args.key];
+      if (metadata.args.key) {
+        const result = (value[ALIAS_BODY] as Record<string, unknown>)[metadata.args.key];
+
+        return {
+          ...value,
+          [metadata.dist]: result,
+        };
+      }
+
+      const result = value[ALIAS_BODY];
+
+      delete value[ALIAS_BODY];
 
       return {
         ...value,
         [metadata.dist]: result,
       };
     }
-
-    const result = value[ALIAS_BODY];
-
-    delete value[ALIAS_BODY];
-
-    return {
-      ...value,
-      [metadata.dist]: result,
-    };
   }
 
   if (metadata instanceof HeaderMetadata) {
