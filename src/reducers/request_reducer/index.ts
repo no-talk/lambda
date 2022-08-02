@@ -24,14 +24,13 @@ import {
   RequiredMetadata,
 } from "@notalk/common";
 import { calculateRequest, RequestReducer } from "@notalk/core";
+import { isAuthorizer } from "../../common/functions";
 import { RequestData } from "../../types";
 import { validate, each, isBoolean, isString, isNumber, isOneOf, isMatched } from "./validate";
 
 const ALIAS_BODY = "__body__";
 
 export const requestReducer: RequestReducer<RequestData> = (value, event, metadata) => {
-  const isAuthorizer = "methodArn" in event;
-
   if (metadata instanceof DomainMetadata) {
     if (event.requestContext.domainName !== metadata.args.value) {
       throw new BadRequestException();
@@ -79,7 +78,7 @@ export const requestReducer: RequestReducer<RequestData> = (value, event, metada
   }
 
   if (metadata instanceof BodyMetadata) {
-    if (isAuthorizer) {
+    if (isAuthorizer(event)) {
       return value;
     } else {
       if (!value[ALIAS_BODY]) {
@@ -120,7 +119,7 @@ export const requestReducer: RequestReducer<RequestData> = (value, event, metada
   if (metadata instanceof BearerAuthMetadata) {
     return {
       ...value,
-      [metadata.dist]: event.headers?.["Authorization"]?.replace("Bearer ", ""),
+      [metadata.dist]: event.headers?.[isAuthorizer(event) ? "authorization" : "Authorization"]?.replace("Bearer ", ""),
     };
   }
 
