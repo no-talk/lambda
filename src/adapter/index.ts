@@ -19,7 +19,7 @@ export const notalk =
 
       return result;
     } catch (error: any) {
-      console.log(error);
+      console.log(error, event, context);
 
       if (isAuthorizer(event)) {
         return callback("Unauthorized");
