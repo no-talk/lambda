@@ -127,7 +127,7 @@ export const requestReducer: RequestReducer<RequestData> = (value, event, metada
   if (metadata instanceof BearerAuthMetadata) {
     return {
       ...value,
-      [metadata.dist]: event.headers?.["Authorization"]?.replace("Bearer ", ""),
+      [metadata.dist]: event.headers?.[isAuthorizer(event) ? "authorization" : "Authorization"]?.replace("Bearer ", ""),
     };
   }
 
