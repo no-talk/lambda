@@ -2,7 +2,7 @@ import {
   BadRequestException,
   BearerAuthMetadata,
   BodyMetadata,
-  EndpointMetadata,
+  DomainMetadata,
   HeaderMetadata,
   IsBooleanArrayMetadata,
   IsBooleanMetadata,
@@ -32,7 +32,7 @@ const ALIAS_BODY = "__body__";
 export const requestReducer: RequestReducer<RequestData> = (value, event, metadata) => {
   const isAuthorizer = "methodArn" in event;
 
-  if (metadata instanceof RequestMetadata) {
+  if (metadata instanceof DomainMetadata) {
     if (event.requestContext.domainName !== metadata.args.value) {
       throw new BadRequestException();
     }
@@ -40,14 +40,14 @@ export const requestReducer: RequestReducer<RequestData> = (value, event, metada
     return value;
   }
 
-  if (metadata instanceof EndpointMetadata) {
+  if (metadata instanceof RequestMetadata) {
     const { method, path } = metadata.args;
 
     if (event.httpMethod.toLowerCase() !== method.toLowerCase()) {
       throw new MethodNotAllowed();
     }
 
-    const pathRegex = new RegExp(path?.startsWith("/") ? "" : "/" + path?.replace(/\/:.*\//, "/.*/"));
+    const pathRegex = new RegExp(path?.startsWith("/") ? "" : "/" + (path ? path.replace(/\/:.*\//, "/.*/") : ""));
 
     if (!pathRegex.test(event.path)) {
       throw new NotFoundException();
