@@ -32,6 +32,10 @@ const ALIAS_BODY = "__body__";
 
 export const requestReducer: RequestReducer<RequestData> = (value, event, metadata) => {
   if (metadata instanceof DomainMetadata) {
+    if (isAuthorizer(event)) {
+      return value;
+    }
+
     if (event.requestContext.domainName !== metadata.args.value) {
       throw new BadRequestException();
     }
@@ -40,6 +44,10 @@ export const requestReducer: RequestReducer<RequestData> = (value, event, metada
   }
 
   if (metadata instanceof RequestMetadata) {
+    if (isAuthorizer(event)) {
+      return value;
+    }
+
     const { method, path } = metadata.args;
 
     if (event.httpMethod.toLowerCase() !== method.toLowerCase()) {
