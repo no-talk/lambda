@@ -24,7 +24,8 @@ import {
   RequiredMetadata,
 } from "@notalk/common";
 import { calculateRequest, RequestReducer } from "@notalk/core";
-import { isAuthorizer } from "../../common/functions";
+import { MessagesMetadata } from "../../common/decorators";
+import { isAuthorizer, isGatewayProxy, isSqs } from "../../common/functions";
 import { RequestData } from "../../types";
 import { validate, each, isBoolean, isString, isNumber, isOneOf, isMatched } from "./validate";
 
@@ -32,7 +33,7 @@ const ALIAS_BODY = "__body__";
 
 export const requestReducer: RequestReducer<RequestData> = (value, event, metadata) => {
   if (metadata instanceof DomainMetadata) {
-    if (isAuthorizer(event)) {
+    if (isAuthorizer(event) || isSqs(event)) {
       return value;
     }
 
@@ -44,7 +45,7 @@ export const requestReducer: RequestReducer<RequestData> = (value, event, metada
   }
 
   if (metadata instanceof RequestMetadata) {
-    if (isAuthorizer(event)) {
+    if (isAuthorizer(event) || isSqs(event)) {
       return value;
     }
 
@@ -72,6 +73,10 @@ export const requestReducer: RequestReducer<RequestData> = (value, event, metada
   }
 
   if (metadata instanceof QueryMetadata) {
+    if (isSqs(event)) {
+      return value;
+    }
+
     return {
       ...value,
       [metadata.dist]: event.queryStringParameters?.[metadata.args.key],
@@ -79,6 +84,10 @@ export const requestReducer: RequestReducer<RequestData> = (value, event, metada
   }
 
   if (metadata instanceof PathMetadata) {
+    if (isSqs(event)) {
+      return value;
+    }
+
     return {
       ...value,
       [metadata.dist]: event.pathParameters?.[metadata.args.key],
@@ -86,11 +95,7 @@ export const requestReducer: RequestReducer<RequestData> = (value, event, metada
   }
 
   if (metadata instanceof BodyMetadata) {
-    if (isAuthorizer(event)) {
-      return value;
-    }
-
-    if (!value[ALIAS_BODY]) {
+    if (isGatewayProxy(event) && !value[ALIAS_BODY]) {
       if (!event.body) {
         value[ALIAS_BODY] = {};
       } else {
@@ -118,6 +123,10 @@ export const requestReducer: RequestReducer<RequestData> = (value, event, metada
   }
 
   if (metadata instanceof HeaderMetadata) {
+    if (isSqs(event)) {
+      return value;
+    }
+
     return {
       ...value,
       [metadata.dist]: event.headers?.[metadata.args.key],
@@ -125,6 +134,10 @@ export const requestReducer: RequestReducer<RequestData> = (value, event, metada
   }
 
   if (metadata instanceof BearerAuthMetadata) {
+    if (isSqs(event)) {
+      return value;
+    }
+
     return {
       ...value,
       [metadata.dist]: event.headers?.[isAuthorizer(event) ? "authorization" : "Authorization"]?.replace("Bearer ", ""),
@@ -233,6 +246,17 @@ export const requestReducer: RequestReducer<RequestData> = (value, event, metada
     return {
       ...value,
       [metadata.dist]: prop.map((element) => calculateRequest({ [ALIAS_BODY]: element }, event, requestReducer, metadata.args.type)),
+    };
+  }
+
+  if (metadata instanceof MessagesMetadata) {
+    if (!isSqs(event)) {
+      return value;
+    }
+
+    return {
+      ...value,
+      [metadata.dist]: event.Records.map(({ body }) => JSON.parse(body)),
     };
   }
 

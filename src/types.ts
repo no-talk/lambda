@@ -1,5 +1,5 @@
-import { APIGatewayProxyEvent, APIGatewayRequestAuthorizerEvent } from "aws-lambda";
+import { APIGatewayProxyEvent, APIGatewayRequestAuthorizerEvent, SQSEvent } from "aws-lambda";
 
 export type Lambda<Input, Output> = (input: Input) => Promise<Output>;
 
-export type RequestData = APIGatewayProxyEvent | APIGatewayRequestAuthorizerEvent;
+export type RequestData = APIGatewayProxyEvent | APIGatewayRequestAuthorizerEvent | SQSEvent;
