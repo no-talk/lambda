@@ -1,7 +1,11 @@
 import { APIGatewayProxyEvent, APIGatewayRequestAuthorizerEvent, SQSEvent, SQSRecord } from "aws-lambda";
 
+export type Class<T> = { new (): T };
+
 export type Lambda<Input, Output> = (input: Input) => Promise<Output>;
 
-export type RequestData = APIGatewayProxyEvent | APIGatewayRequestAuthorizerEvent | SQSEvent;
+export type LambdaEvent = APIGatewayProxyEvent | APIGatewayRequestAuthorizerEvent | SQSEvent;
 
-export type RequestReducerData = APIGatewayProxyEvent | APIGatewayRequestAuthorizerEvent | SQSRecord;
+export type RequestReducerEvent = APIGatewayProxyEvent | APIGatewayRequestAuthorizerEvent | SQSRecord;
+
+export type ResponseReducerEvent = APIGatewayProxyEvent | APIGatewayRequestAuthorizerEvent;

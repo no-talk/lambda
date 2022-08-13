@@ -24,13 +24,13 @@ import {
   RequiredMetadata,
 } from "@notalk/common";
 import { calculateRequest, RequestReducer } from "@notalk/core";
-import { isAuthorizerInReducer, isSqsInReducer } from "../../common/functions";
-import { RequestReducerData } from "../../types";
+import { isAuthorizerInReducer, isSqsInReducer } from "../../common/validators";
+import { RequestReducerEvent } from "../../types";
 import { validate, each, isBoolean, isString, isNumber, isOneOf, isMatched } from "./validate";
 
 const ALIAS_BODY = "__body__";
 
-export const requestReducer: RequestReducer<RequestReducerData> = (value, event, metadata) => {
+export const requestReducer: RequestReducer<RequestReducerEvent> = (value, event, metadata) => {
   if (metadata instanceof DomainMetadata) {
     if (isAuthorizerInReducer(event) || isSqsInReducer(event)) {
       return value;

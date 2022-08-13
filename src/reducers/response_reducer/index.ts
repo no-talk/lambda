@@ -1,34 +1,14 @@
-import { ResponseMetadata, SnakeCaseMetadata } from "@notalk/common";
+import { PrincipalIdMetadata, ResponseMetadata, SnakeCaseMetadata } from "@notalk/common";
 import { ResponseReducer } from "@notalk/core";
-import { isAuthorizer } from "../../common/functions";
-import { RequestData } from "../../types";
+import { ResponseReducerEvent } from "../../types";
 
-export const responseReducer: ResponseReducer<RequestData> = (value, event, metadata) => {
+export const responseReducer: ResponseReducer<ResponseReducerEvent> = (value, event, metadata) => {
   if (metadata instanceof ResponseMetadata) {
-    if (isAuthorizer(event)) {
-      return {
-        principalId: (value.body as any)?.id || "none",
-        policyDocument: {
-          Version: "2012-10-17",
-          Statement: [
-            {
-              Action: "execute-api:Invoke",
-              Effect: "Allow",
-              Resource: event.methodArn,
-            },
-          ],
-        },
-      };
-    }
-
     const statusCode = metadata.args.value;
-
-    const body = JSON.stringify(value.body);
 
     return {
       ...value,
       statusCode,
-      body,
     };
   }
 
@@ -62,6 +42,15 @@ export const responseReducer: ResponseReducer<RequestData> = (value, event, meta
     return {
       ...value,
       [metadata.dist]: toSnakeCase(value[metadata.dist]),
+    };
+  }
+
+  if (metadata instanceof PrincipalIdMetadata) {
+    const principalId = value[metadata.dist];
+
+    return {
+      ...value,
+      principalId,
     };
   }
 

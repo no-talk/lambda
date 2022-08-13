@@ -1,3 +1,3 @@
-export const log = (...message: any[]) => {
+export const report = (...message: any[]) => {
   console.log(...message);
 };
