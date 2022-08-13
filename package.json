@@ -1,6 +1,6 @@
 {
   "name": "@notalk/lambda",
-  "version": "0.2.9",
+  "version": "0.3.0",
   "description": "No need to talk when you provide or consume REST API",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
