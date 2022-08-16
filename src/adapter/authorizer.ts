@@ -13,14 +13,14 @@ export const authorizerAdapter =
 
       const output = await lambda(input);
 
-      const { principalId, ...context } = calculateResponse(output as any, event, responseReducer, response);
+      const { principalId, principal_id, ...context } = calculateResponse(output as any, event, responseReducer, response);
 
-      if (!principalId) {
-        return callback("Princial id is not provided");
+      if (!principalId && !principal_id) {
+        return callback("Principal id is not provided");
       }
 
       return {
-        principalId,
+        principalId: principalId || principal_id || "none",
         policyDocument: {
           Version: "2012-10-17",
           Statement: [
