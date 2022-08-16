@@ -14,17 +14,23 @@ export const notalk =
   <Request, Response>(request: Class<Request>, response: Class<Response>) =>
   (lambda: Lambda<Request, Response>): Handler =>
   async (event, context, callback) => {
-    if (isSqs(event)) {
-      return sqsAdapter(request, response)(lambda)(event, context, callback);
-    }
+    report("Request :: ", event);
 
-    if (isAuthorizer(event)) {
-      return authorizerAdapter(request, response)(lambda)(event, context, callback);
-    }
+    const result = await (() => {
+      if (isSqs(event)) {
+        return sqsAdapter(request, response)(lambda)(event, context, callback);
+      }
 
-    if (isGatewayProxy(event)) {
-      return gatewayProxyAdapter(request, response)(lambda)(event, context, callback);
-    }
+      if (isAuthorizer(event)) {
+        return authorizerAdapter(request, response)(lambda)(event, context, callback);
+      }
 
-    report("NotSupportedEventError :: ", event);
+      if (isGatewayProxy(event)) {
+        return gatewayProxyAdapter(request, response)(lambda)(event, context, callback);
+      }
+    })();
+
+    report("Response :: ", result);
+
+    return result;
   };

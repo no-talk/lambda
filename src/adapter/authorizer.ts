@@ -13,9 +13,9 @@ export const authorizerAdapter =
 
       const output = await lambda(input);
 
-      const { body: context } = calculateResponse(output as any, event, responseReducer, response);
+      const { body } = calculateResponse(output as any, event, responseReducer, response);
 
-      const { principalId, principal_id } = context;
+      const { principalId, principal_id, ...context } = body;
 
       if (!principalId && !principal_id) {
         return callback("Principal id is not provided");
