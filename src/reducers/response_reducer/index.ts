@@ -39,10 +39,7 @@ export const responseReducer: ResponseReducer<ResponseReducerEvent> = (value, ev
       return value;
     };
 
-    return {
-      ...value,
-      [metadata.dist]: toSnakeCase(value[metadata.dist]),
-    };
+    return toSnakeCase(value);
   }
 
   if (metadata instanceof ResponseBodyMetadata) {
