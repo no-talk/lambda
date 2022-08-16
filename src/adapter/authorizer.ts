@@ -8,9 +8,9 @@ export const authorizerAdapter =
   <T, K>(request: Class<T>, response: Class<K>) =>
   (lambda: Lambda<T, K>): APIGatewayRequestAuthorizerHandler =>
   async (event) => {
-    const input = calculateRequest({}, event, requestReducer, request);
-
     try {
+      const input = calculateRequest({}, event, requestReducer, request);
+
       const output = await lambda(input);
 
       const { principalId, ...responseContext } = calculateResponse(output as any, event, requestReducer, response);

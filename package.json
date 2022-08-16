@@ -1,12 +1,12 @@
 {
   "name": "@notalk/lambda",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "No need to talk when you provide or consume REST API",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
     "test": "rm -rf lib && tsc && node lib/test.js",
-    "deploy": "rm -rf lib && tsc -d && npm publish"
+    "deploy": "npm i && rm -rf lib && tsc -d && npm publish"
   },
   "repository": {
     "type": "git",
