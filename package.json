@@ -1,6 +1,6 @@
 {
   "name": "@notalk/lambda",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "description": "No need to talk when you provide or consume REST API",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -34,7 +34,7 @@
     "typescript": "^4.7.4"
   },
   "dependencies": {
-    "@notalk/common": "^0.4.1",
+    "@notalk/common": "^0.4.2",
     "@notalk/core": "^0.2.2"
   }
 }
