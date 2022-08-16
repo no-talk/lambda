@@ -1,9 +1,9 @@
-import { PrincipalIdMetadata, ResponseMetadata, SnakeCaseMetadata } from "@notalk/common";
-import { ResponseReducer } from "@notalk/core";
+import { PrincipalIdMetadata, ResponseBodyMetadata, SnakeCaseMetadata, StatusCodeMetadata } from "@notalk/common";
+import { calculateResponse, ResponseReducer } from "@notalk/core";
 import { ResponseReducerEvent } from "../../types";
 
 export const responseReducer: ResponseReducer<ResponseReducerEvent> = (value, event, metadata) => {
-  if (metadata instanceof ResponseMetadata) {
+  if (metadata instanceof StatusCodeMetadata) {
     const statusCode = metadata.args.value;
 
     return {
@@ -42,6 +42,17 @@ export const responseReducer: ResponseReducer<ResponseReducerEvent> = (value, ev
     return {
       ...value,
       [metadata.dist]: toSnakeCase(value[metadata.dist]),
+    };
+  }
+
+  if (metadata instanceof ResponseBodyMetadata) {
+    if (!value[metadata.dist]) {
+      return value;
+    }
+
+    return {
+      ...value,
+      body: calculateResponse(value[metadata.dist] as any, event, responseReducer, metadata.args.type),
     };
   }
 

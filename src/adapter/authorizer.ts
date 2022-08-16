@@ -7,7 +7,7 @@ import { Class, Lambda } from "../types";
 export const authorizerAdapter =
   <T, K>(request: Class<T>, response: Class<K>) =>
   (lambda: Lambda<T, K>) =>
-  async (event: APIGatewayRequestAuthorizerEvent, _: Context, callback: Callback) => {
+  async (event: APIGatewayRequestAuthorizerEvent, context: Context, callback: Callback) => {
     try {
       const input = calculateRequest({}, event, requestReducer, request);
 
@@ -16,7 +16,7 @@ export const authorizerAdapter =
       const { principalId, ...context } = calculateResponse(output as any, event, responseReducer, response);
 
       if (!principalId) {
-        return callback("Error :: Princial id is not provided");
+        return callback("Princial id is not provided");
       }
 
       return {
