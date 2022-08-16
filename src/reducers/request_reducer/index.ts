@@ -2,6 +2,7 @@ import {
   BadRequestException,
   BearerAuthMetadata,
   BodyMetadata,
+  ContextMetadata,
   DomainMetadata,
   HeaderMetadata,
   IsBooleanArrayMetadata,
@@ -31,6 +32,24 @@ import { validate, each, isBoolean, isString, isNumber, isOneOf, isMatched } fro
 const ALIAS_BODY = "__body__";
 
 export const requestReducer: RequestReducer<RequestReducerEvent> = (value, event, metadata) => {
+  if (metadata instanceof ContextMetadata) {
+    if (isSqsInReducer(event)) {
+      return value;
+    }
+
+    if (metadata.args.key) {
+      return {
+        ...value,
+        [metadata.dist]: event.requestContext.authorizer?.[metadata.args.key],
+      };
+    }
+
+    return {
+      ...value,
+      [metadata.dist]: event.requestContext.authorizer,
+    };
+  }
+
   if (metadata instanceof DomainMetadata) {
     if (isSqsInReducer(event)) {
       return value;
