@@ -1,7 +1,7 @@
 import { calculateRequest, calculateResponse } from "@notalk/core";
 import { APIGatewayRequestAuthorizerEvent, Callback, Context } from "aws-lambda";
 import { report } from "../common/logger";
-import { requestReducer } from "../reducers";
+import { requestReducer, responseReducer } from "../reducers";
 import { Class, Lambda } from "../types";
 
 export const authorizerAdapter =
@@ -13,7 +13,7 @@ export const authorizerAdapter =
 
       const output = await lambda(input);
 
-      const { principalId, ...context } = calculateResponse(output as any, event, requestReducer, response);
+      const { principalId, ...context } = calculateResponse(output as any, event, responseReducer, response);
 
       if (!principalId) {
         return callback("Error :: Princial id is not provided");
