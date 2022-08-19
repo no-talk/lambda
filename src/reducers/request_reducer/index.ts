@@ -158,9 +158,18 @@ export const requestReducer: RequestReducer<RequestReducerEvent> = (value, event
       return value;
     }
 
+    const result = event.headers?.[metadata.args.key];
+
+    if (result) {
+      return {
+        ...value,
+        [metadata.dist]: result,
+      };
+    }
+
     return {
       ...value,
-      [metadata.dist]: event.headers?.[metadata.args.key],
+      [metadata.dist]: event.headers?.[metadata.args.key.toLowerCase()],
     };
   }
 
