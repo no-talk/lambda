@@ -2,7 +2,7 @@ import { APIGatewayProxyEvent, APIGatewayRequestAuthorizerEvent, SQSEvent, SQSRe
 
 export type Class<T> = { new (): T };
 
-export type Lambda<Input, Output> = (input: Input) => Promise<Output>;
+export type Lambda<Input, Output> = (input: Readonly<Input>) => Promise<Output>;
 
 export type LambdaEvent = APIGatewayProxyEvent | APIGatewayRequestAuthorizerEvent | SQSEvent;
 

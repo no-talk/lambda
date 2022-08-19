@@ -121,7 +121,9 @@ export const requestReducer: RequestReducer<RequestReducerEvent> = (value, event
     }
 
     if (metadata.args.key) {
-      const result = (value[ALIAS_BODY] as Record<string, unknown>)[metadata.args.key];
+      const result = (value[ALIAS_BODY] as any)[metadata.args.key];
+
+      delete (value[ALIAS_BODY] as any)[metadata.args.key];
 
       return {
         ...value,
