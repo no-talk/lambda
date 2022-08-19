@@ -21,6 +21,7 @@ import {
   NotFoundException,
   PathMetadata,
   QueryMetadata,
+  RawBodyMetadata,
   RequestMetadata,
   RequiredMetadata,
 } from "@notalk/common";
@@ -108,6 +109,17 @@ export const requestReducer: RequestReducer<RequestReducerEvent> = (value, event
     return {
       ...value,
       [metadata.dist]: event.pathParameters?.[metadata.args.key],
+    };
+  }
+
+  if (metadata instanceof RawBodyMetadata) {
+    if (isAuthorizerInReducer(event)) {
+      return value;
+    }
+
+    return {
+      ...value,
+      [metadata.dist]: event.body,
     };
   }
 
