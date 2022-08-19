@@ -4,6 +4,7 @@ import {
   BodyMetadata,
   ContextMetadata,
   DomainMetadata,
+  FilesMetadata,
   HeaderMetadata,
   IsBooleanArrayMetadata,
   IsBooleanMetadata,
@@ -26,7 +27,8 @@ import {
   RequiredMetadata,
 } from "@notalk/common";
 import { calculateRequest, RequestReducer } from "@notalk/core";
-import { isAuthorizerInReducer, isSqsInReducer } from "../../common/validators";
+import { getBoundary, Parse as parse } from "parse-multipart";
+import { isAuthorizerInReducer, isGatewayProxyInReducer, isSqsInReducer } from "../../common/validators";
 import { RequestReducerEvent } from "../../types";
 import { validate, each, isBoolean, isString, isNumber, isOneOf, isMatched } from "./validate";
 
@@ -170,6 +172,33 @@ export const requestReducer: RequestReducer<RequestReducerEvent> = (value, event
     return {
       ...value,
       [metadata.dist]: event.headers?.[metadata.args.key.toLowerCase()],
+    };
+  }
+
+  if (metadata instanceof FilesMetadata) {
+    if (!isGatewayProxyInReducer(event)) {
+      return value;
+    }
+
+    if (!event.body) {
+      return value;
+    }
+
+    const contentType = event.headers?.["Content-Type"] || event.headers?.["content-type"];
+
+    if (!contentType) {
+      return value;
+    }
+
+    const buffer = Buffer.from(event.body.toString(), "base64");
+
+    const boundary = getBoundary(contentType);
+
+    const result = parse(buffer, boundary);
+
+    return {
+      ...value,
+      [metadata.dist]: result,
     };
   }
 
