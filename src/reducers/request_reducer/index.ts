@@ -28,7 +28,7 @@ import {
 } from "@notalk/common";
 import { calculateRequest, RequestReducer } from "@notalk/core";
 import { getBoundary, Parse as parse } from "parse-multipart";
-import { isAuthorizerInReducer, isGatewayProxyInReducer, isSqsInReducer } from "../../common/validators";
+import { isAuthorizerInReducer, isEventBridgeInReducer, isGatewayProxyInReducer, isSqsInReducer } from "../../common/validators";
 import { RequestReducerEvent } from "../../types";
 import { validate, each, isBoolean, isString, isNumber, isOneOf, isMatched } from "./validate";
 
@@ -36,7 +36,7 @@ const ALIAS_BODY = "__body__";
 
 export const requestReducer: RequestReducer<RequestReducerEvent> = (value, event, metadata) => {
   if (metadata instanceof ContextMetadata) {
-    if (isSqsInReducer(event)) {
+    if (isSqsInReducer(event) || isEventBridgeInReducer(event)) {
       return value;
     }
 
@@ -58,6 +58,13 @@ export const requestReducer: RequestReducer<RequestReducerEvent> = (value, event
       return value;
     }
 
+    if (isEventBridgeInReducer(event)) {
+      return {
+        ...value,
+        [metadata.dist]: event.source,
+      };
+    }
+
     return {
       ...value,
       [metadata.dist]: event.requestContext.domainName,
@@ -65,7 +72,7 @@ export const requestReducer: RequestReducer<RequestReducerEvent> = (value, event
   }
 
   if (metadata instanceof RequestMetadata) {
-    if (isAuthorizerInReducer(event) || isSqsInReducer(event)) {
+    if (!isGatewayProxyInReducer(event)) {
       return value;
     }
 
@@ -93,7 +100,7 @@ export const requestReducer: RequestReducer<RequestReducerEvent> = (value, event
   }
 
   if (metadata instanceof QueryMetadata) {
-    if (isSqsInReducer(event)) {
+    if (isSqsInReducer(event) || isEventBridgeInReducer(event)) {
       return value;
     }
 
@@ -104,7 +111,7 @@ export const requestReducer: RequestReducer<RequestReducerEvent> = (value, event
   }
 
   if (metadata instanceof PathMetadata) {
-    if (isSqsInReducer(event)) {
+    if (isSqsInReducer(event) || isEventBridgeInReducer(event)) {
       return value;
     }
 
@@ -119,6 +126,13 @@ export const requestReducer: RequestReducer<RequestReducerEvent> = (value, event
       return value;
     }
 
+    if (isEventBridgeInReducer(event)) {
+      return {
+        ...value,
+        [metadata.dist]: event.detail,
+      };
+    }
+
     return {
       ...value,
       [metadata.dist]: event.body,
@@ -126,11 +140,19 @@ export const requestReducer: RequestReducer<RequestReducerEvent> = (value, event
   }
 
   if (metadata instanceof BodyMetadata) {
-    if (!isAuthorizerInReducer(event) && !value[ALIAS_BODY]) {
-      if (!event.body) {
-        value[ALIAS_BODY] = {};
-      } else {
-        value[ALIAS_BODY] = JSON.parse(event.body);
+    if (!value[ALIAS_BODY]) {
+      if (isEventBridgeInReducer(event)) {
+        if (!event.detail) {
+          value[ALIAS_BODY] = {};
+        } else {
+          value[ALIAS_BODY] = event.detail;
+        }
+      } else if (!isAuthorizerInReducer(event)) {
+        if (!event.body) {
+          value[ALIAS_BODY] = {};
+        } else {
+          value[ALIAS_BODY] = JSON.parse(event.body);
+        }
       }
     }
 
@@ -156,7 +178,7 @@ export const requestReducer: RequestReducer<RequestReducerEvent> = (value, event
   }
 
   if (metadata instanceof HeaderMetadata) {
-    if (isSqsInReducer(event)) {
+    if (isSqsInReducer(event) || isEventBridgeInReducer(event)) {
       return value;
     }
 
@@ -203,7 +225,7 @@ export const requestReducer: RequestReducer<RequestReducerEvent> = (value, event
   }
 
   if (metadata instanceof BearerAuthMetadata) {
-    if (isSqsInReducer(event)) {
+    if (isSqsInReducer(event) || isEventBridgeInReducer(event)) {
       return value;
     }
 
