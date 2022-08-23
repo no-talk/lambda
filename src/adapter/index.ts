@@ -43,5 +43,5 @@ export const notalk =
 
     report("Response :: ", result);
 
-    return adapter;
+    return result;
   };
