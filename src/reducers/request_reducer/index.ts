@@ -92,7 +92,9 @@ export const requestReducer: RequestReducer<RequestReducerEvent> = (value, event
   }
 
   if (metadata instanceof RequiredMetadata) {
-    if (!value[metadata.dist]) {
+    const that = value[metadata.dist];
+
+    if (that === null || typeof that === "undefined") {
       throw new BadRequestException();
     }
 
