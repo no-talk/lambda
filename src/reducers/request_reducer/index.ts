@@ -77,13 +77,16 @@ export const requestReducer: RequestReducer<RequestReducerEvent> = (value, event
       return value;
     }
 
-    const cookies = event.headers?.["Cookie"];
+    const cookies = event.headers?.["Cookie"] || event.headers?.["cookie"];
 
     if (!cookies) {
       return value;
     }
 
-    const result = cookies.split(";").find((c) => c.split("=")[0] === metadata.args.key);
+    const result = cookies
+      .split(";")
+      .find((c) => c.split("=")[0] === metadata.args.key)
+      ?.split("=")[1];
 
     return {
       ...value,
