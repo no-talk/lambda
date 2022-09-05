@@ -3,6 +3,7 @@ import {
   BearerAuthMetadata,
   BodyMetadata,
   ContextMetadata,
+  CookieMetadata,
   DomainMetadata,
   FilesMetadata,
   HeaderMetadata,
@@ -68,6 +69,25 @@ export const requestReducer: RequestReducer<RequestReducerEvent> = (value, event
     return {
       ...value,
       [metadata.dist]: event.requestContext.domainName,
+    };
+  }
+
+  if (metadata instanceof CookieMetadata) {
+    if (!isGatewayProxyInReducer(event) && !isAuthorizerInReducer(event)) {
+      return value;
+    }
+
+    const cookies = event.headers?.["Cookie"];
+
+    if (!cookies) {
+      return value;
+    }
+
+    const result = cookies.split(";").find((c) => c.split("=")[0] === metadata.args.key);
+
+    return {
+      ...value,
+      [metadata.dist]: result,
     };
   }
 
