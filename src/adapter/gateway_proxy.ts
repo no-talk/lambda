@@ -13,6 +13,7 @@ export const gatewayProxyAdapter =
       "Access-Control-Allow-Headers": "Content-Type",
       "Access-Control-Allow-Origin": event.headers?.["origin"],
       "Access-Control-Allow-Methods": event.httpMethod,
+      "Access-Control-Allow-Credentials": true,
     };
 
     try {
