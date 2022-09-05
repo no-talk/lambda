@@ -20,6 +20,14 @@ export const gatewayProxyAdapter =
         throw new InternalServerError("status code를 제공해야 해요.");
       }
 
+      if (!body) {
+        return {
+          statusCode,
+          headers,
+          body: "",
+        };
+      }
+
       if (body["principalId"] || body["principal_id"]) {
         delete body["principalId"];
 
@@ -29,7 +37,7 @@ export const gatewayProxyAdapter =
       return {
         statusCode,
         headers,
-        body: body ? JSON.stringify(body) : "",
+        body: JSON.stringify(body),
       };
     } catch (error: any) {
       report("Exception :: ", error, event);
