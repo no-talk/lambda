@@ -207,7 +207,7 @@ export const requestReducer: RequestReducer<RequestReducerEvent> = (value, event
       return value;
     }
 
-    const result = event.headers?.[metadata.args.key];
+    const result = event.headers?.[metadata.args.key] || event.headers?.[metadata.args.key.toLowerCase()];
 
     if (result) {
       return {
@@ -254,9 +254,11 @@ export const requestReducer: RequestReducer<RequestReducerEvent> = (value, event
       return value;
     }
 
+    const authorization = event.headers?.["authorization"] || event.headers?.["Authorization"];
+
     return {
       ...value,
-      [metadata.dist]: event.headers?.[isAuthorizerInReducer(event) ? "authorization" : "Authorization"]?.replace("Bearer ", ""),
+      [metadata.dist]: authorization?.replace("Bearer ", ""),
     };
   }
 
