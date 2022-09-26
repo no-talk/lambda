@@ -9,13 +9,6 @@ export const gatewayProxyAdapter =
   <T, K>(request: Class<T>, response: Class<K>) =>
   (lambda: Lambda<T, K>): APIGatewayProxyHandler =>
   async (event) => {
-    const corsHeaders = {
-      "Access-Control-Allow-Headers": "Content-Type",
-      "Access-Control-Allow-Origin": event.headers?.["origin"],
-      "Access-Control-Allow-Methods": event.httpMethod,
-      "Access-Control-Allow-Credentials": true,
-    };
-
     try {
       const input = calculateRequest({}, event, requestReducer, request);
 
@@ -30,10 +23,7 @@ export const gatewayProxyAdapter =
       if (!body) {
         return {
           statusCode,
-          headers: {
-            ...corsHeaders,
-            ...headers,
-          },
+          headers,
           body: "",
         };
       }
@@ -46,10 +36,7 @@ export const gatewayProxyAdapter =
 
       return {
         statusCode,
-        headers: {
-          ...corsHeaders,
-          ...headers,
-        },
+        headers,
         body: JSON.stringify(body),
       };
     } catch (error: any) {
@@ -60,10 +47,7 @@ export const gatewayProxyAdapter =
 
         return {
           statusCode,
-          headers: {
-            ...corsHeaders,
-            ...headers,
-          },
+          headers,
           body: JSON.stringify({
             message,
           }),
@@ -74,9 +58,6 @@ export const gatewayProxyAdapter =
 
       return {
         statusCode: 500,
-        headers: {
-          ...corsHeaders,
-        },
         body: JSON.stringify({ message }),
       };
     }
