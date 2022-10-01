@@ -11,6 +11,8 @@ export const authorizerAdapter =
     try {
       const input = calculateRequest({}, event, requestReducer, request);
 
+      report("Input :: ", input);
+
       const output = await lambda(input);
 
       const { body } = calculateResponse(output as any, event, responseReducer, response);

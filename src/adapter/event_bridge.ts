@@ -12,6 +12,8 @@ export const eventBridgeAdapter =
     try {
       const input = calculateRequest({}, event, requestReducer, request);
 
+      report("Input :: ", input);
+
       const result = await lambda(input);
 
       return result;

@@ -36,6 +36,8 @@ export const notalk =
         return gatewayProxyAdapter;
       }
 
+      report("Event not supported", event);
+
       throw Error();
     })();
 

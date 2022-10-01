@@ -12,6 +12,8 @@ export const gatewayProxyAdapter =
     try {
       const input = calculateRequest({}, event, requestReducer, request);
 
+      report("Input :: ", input);
+
       const output = await lambda(input);
 
       const { statusCode, headers, body } = calculateResponse(output as any, event, responseReducer, response);

@@ -237,7 +237,7 @@ export const requestReducer: RequestReducer<RequestReducerEvent> = (value, event
       return value;
     }
 
-    const buffer = Buffer.from(event.body.toString(), "base64");
+    const buffer = Buffer.from(event.body, event.isBase64Encoded ? "base64" : undefined);
 
     const boundary = getBoundary(contentType);
 

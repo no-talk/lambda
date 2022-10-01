@@ -16,6 +16,8 @@ export const sqsAdapter =
         try {
           const input = calculateRequest({}, record, requestReducer, request);
 
+          report("Input :: ", input);
+
           await lambda(input);
         } catch (error) {
           report("Exception :: ", error, record);
