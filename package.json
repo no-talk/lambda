@@ -37,6 +37,6 @@
   "dependencies": {
     "@notalk/common": "^0.5.1",
     "@notalk/core": "^0.2.2",
-    "parse-multipart": "^1.0.4"
+    "parse-multipart-form-data": "^0.1.1"
   }
 }
