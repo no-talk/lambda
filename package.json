@@ -1,6 +1,6 @@
 {
   "name": "@notalk/lambda",
-  "version": "0.10.0",
+  "version": "0.10.2",
   "description": "No need to talk when you provide or consume REST API",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -37,6 +37,6 @@
   "dependencies": {
     "@notalk/common": "^0.5.1",
     "@notalk/core": "^0.2.2",
-    "parse-multipart-form-data": "^0.1.1"
+    "parse-multipart-form-data": "^1.0.0"
   }
 }

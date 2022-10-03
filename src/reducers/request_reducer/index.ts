@@ -28,7 +28,7 @@ import {
   RequiredMetadata,
 } from "@notalk/common";
 import { calculateRequest, RequestReducer } from "@notalk/core";
-import { getBoundary, parse } from "parse-multipart-form-data";
+import { extractBoundary, parse } from "parse-multipart-form-data";
 import { isAuthorizerInReducer, isEventBridgeInReducer, isGatewayProxyInReducer, isSqsInReducer } from "../../common/validators";
 import { RequestReducerEvent } from "../../types";
 import { validate, each, isBoolean, isString, isNumber, isOneOf, isMatched } from "./validate";
@@ -237,11 +237,7 @@ export const requestReducer: RequestReducer<RequestReducerEvent> = (value, event
       return value;
     }
 
-    const boundary = getBoundary(contentType);
-
-    if (!boundary) {
-      return value;
-    }
+    const boundary = extractBoundary(contentType);
 
     const buffer = Buffer.from(event.body, event.isBase64Encoded ? "base64" : undefined);
 
